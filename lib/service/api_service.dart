@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../model/store_model.dart';
 
 class ApiService {
-  static const String baseUrl = "http://192.168.1.154:8000/api";
+  static const String baseUrl = "http://192.168.18.45:8000/api";
 
   // ------------------------
   // STORE ENDPOINTS
@@ -20,19 +20,22 @@ class ApiService {
       throw Exception('Failed to load stores');
     }
   }
+
   // For Note
   static Future<List<Store>> fetchStoresByDate(DateTime date) async {
-  final d = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
-  final response = await http.get(Uri.parse('$baseUrl/stores/by-date?date=$d'));
+    final d =
+        "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+    final response = await http.get(
+      Uri.parse('$baseUrl/stores/by-date?date=$d'),
+    );
 
-  if (response.statusCode == 200) {
-    final List<dynamic> data = json.decode(response.body)['stores'];
-    return data.map((j) => Store.fromJson(j)).toList();
-  } else {
-    throw Exception('Failed to load stores by date');
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body)['stores'];
+      return data.map((j) => Store.fromJson(j)).toList();
+    } else {
+      throw Exception('Failed to load stores by date');
+    }
   }
-}
-
 
   // Add a new store
   static Future<void> addStore(Store store) async {

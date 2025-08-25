@@ -29,17 +29,6 @@ class _CollectorPageState extends State<CollectorPage> {
     _loadStores();
   }
 
-  // Future<void> _loadStores() async {
-  //   setState(() => isLoading = true);
-  //   try {
-  //     stores = await ApiService.fetchStores();
-  //     _filterStores();
-  //   } catch (e) {
-  //     debugPrint("Error loading stores: $e");
-  //   }
-  //   if (!mounted) return;
-  //   setState(() => isLoading = false);
-  // }
   Future<void> _loadStores() async {
     setState(() => isLoading = true);
     try {
@@ -73,27 +62,22 @@ class _CollectorPageState extends State<CollectorPage> {
     }
   }
 
-  
   // Compute status for selected date without overwriting backend status
-  // String getStatusForSelectedDate(Store store) {
-  //   if (store.latestPayment == null || selectedDate == null) return "unpaid";
-
-  //   final paymentDate = DateTime.parse(store.latestPayment!.createdAt);
-  //   return paymentDate.toLocal().toString().split(' ')[0] ==
-  //           selectedDate!.toLocal().toString().split(' ')[0]
-  //       ? "paid"
-  //       : "unpaid";
-  // }
   String getStatusForSelectedDate(Store store) {
-    // If the API returned a payment for that selected date, it's paid
-    return store.latestPayment != null ? "paid" : "unpaid";
+    if (store.latestPayment == null) return "unpaid";
+
+    final paymentDate = DateTime.parse(store.latestPayment!.createdAt);
+    return paymentDate.toLocal().toString().split(' ')[0] ==
+            selectedDate!.toLocal().toString().split(' ')[0]
+        ? "paid"
+        : "unpaid";
   }
 
   Future<void> exportCSV() async {
     List<List<String>> rows = [];
 
     // Add a title row
-    rows.add(['Store Payment Report']);
+    rows.add(['Collector CSV']);
     rows.add([]); // empty row for spacing
 
     // Add headers
@@ -203,18 +187,6 @@ class _CollectorPageState extends State<CollectorPage> {
                                   isDense: true,
                                 ),
                                 onTap: () async {
-                                  // final picked = await showDatePicker(
-                                  //   context: context,
-                                  //   initialDate: selectedDate!,
-                                  //   firstDate: DateTime(2020),
-                                  //   lastDate: DateTime(2100),
-                                  // );
-                                  //   if (picked != null) {
-                                  //     setState(() {
-                                  //       selectedDate = picked;
-                                  //       _filterStores();
-                                  //     });
-                                  //   }
                                   final picked = await showDatePicker(
                                     context: context,
                                     initialDate: selectedDate!,
@@ -327,7 +299,7 @@ class _CollectorPageState extends State<CollectorPage> {
                                         children: [
                                           QrImageView(
                                             data:
-                                                'http://192.168.1.154:8000/pay?store_id=${selectedStore!.id}&amount=${selectedStore!.defaultAmount}&date=${selectedDate!.toIso8601String()}',
+                                                'http://192.168.18.45:8000/pay?store_id=${selectedStore!.id}&amount=${selectedStore!.defaultAmount}&date=${selectedDate!.toIso8601String()}',
                                             version: QrVersions.auto,
                                             size: 200,
                                           ),

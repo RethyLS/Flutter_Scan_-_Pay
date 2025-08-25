@@ -31,7 +31,7 @@ class _ReportsPageState extends State<ReportsPage> {
   Future<void> _loadStores() async {
     setState(() => isLoading = true);
     try {
-      stores = await ApiService.fetchStores();
+      stores = await ApiService.fetchStoresByDate(selectedDate);
       _filterStores();
     } catch (e) {
       debugPrint("Error loading stores: $e");
@@ -80,20 +80,16 @@ class _ReportsPageState extends State<ReportsPage> {
     if (picked != null) {
       setState(() {
         selectedDate = picked;
-        _filterStores();
       });
+      await _loadStores(); // reload stores for selected date
     }
   }
 
-  // Export to CSV Method
   Future<void> exportCSV() async {
     List<List<String>> rows = [];
 
-    // 1️⃣ Add a title row
-    rows.add(['Store Payment Report']);
-    rows.add([]); // empty row for spacing
-
-    // 2️⃣ Add headers (added Store ID, Transaction ID & Note)
+    rows.add(['Reports CSV']);
+    rows.add([]);
     rows.add([
       'Store ID',
       'Name',
@@ -106,7 +102,6 @@ class _ReportsPageState extends State<ReportsPage> {
       'Note',
     ]);
 
-    // 3️⃣ Add store rows
     for (var store in filteredStores) {
       rows.add([
         store.id?.toString() ?? '',
@@ -121,7 +116,6 @@ class _ReportsPageState extends State<ReportsPage> {
       ]);
     }
 
-    // 4️⃣ Add a summary row
     rows.add([]);
     rows.add([
       'Total Stores',
@@ -140,7 +134,6 @@ class _ReportsPageState extends State<ReportsPage> {
 
     String csvData = const ListToCsvConverter().convert(rows);
 
-    // 5️⃣ Determine folder
     Directory directory;
     if (Platform.isAndroid) {
       directory = Directory('/storage/emulated/0/Download/MyCSV');
@@ -149,7 +142,6 @@ class _ReportsPageState extends State<ReportsPage> {
       directory = await getApplicationDocumentsDirectory();
     }
 
-    // 6️⃣ Save CSV file
     String path =
         '${directory.path}/stores_${DateTime.now().millisecondsSinceEpoch}.csv';
     final file = File(path);
@@ -171,27 +163,21 @@ class _ReportsPageState extends State<ReportsPage> {
           padding: const EdgeInsets.all(16),
           child: ListView(
             children: [
-              // Header row: ID + Date + Amount | Status
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        DateFormat("dd-MM-yyyy").format(selectedDate),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    DateFormat("dd-MM-yyyy").format(selectedDate),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
-                    "\$${store.defaultAmount} | ${store.latestPayment != null ? 'Paid' : 'Unpaid'}",
+                    "\$${store.defaultAmount} | ${getStatusForSelectedDate(store).toUpperCase()}",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: store.latestPayment != null
+                      color: getStatusForSelectedDate(store) == 'paid'
                           ? Colors.green
                           : Colors.red,
                     ),
@@ -254,7 +240,6 @@ class _ReportsPageState extends State<ReportsPage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // Title + Export
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -269,8 +254,6 @@ class _ReportsPageState extends State<ReportsPage> {
                 ],
               ),
               const SizedBox(height: 8),
-
-              // Date & summary
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -285,8 +268,6 @@ class _ReportsPageState extends State<ReportsPage> {
                   ),
                 ],
               ),
-
-              // Group filter
               Row(
                 children: [
                   const Text("Group: "),
@@ -304,8 +285,6 @@ class _ReportsPageState extends State<ReportsPage> {
                 ],
               ),
               const Divider(),
-
-              // Table header
               Row(
                 children: const [
                   Expanded(
@@ -339,8 +318,6 @@ class _ReportsPageState extends State<ReportsPage> {
                 ],
               ),
               const Divider(),
-
-              // Table rows (clickable)
               Column(
                 children: visibleStores.map((store) {
                   return InkWell(
@@ -394,8 +371,6 @@ class _ReportsPageState extends State<ReportsPage> {
                   );
                 }).toList(),
               ),
-
-              // Pagination controls
               if (filteredStores.length > rowsPerPage)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

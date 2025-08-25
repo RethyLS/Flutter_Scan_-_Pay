@@ -316,7 +316,7 @@ class _AdminPageState extends State<AdminPage> {
                                                 key: qrKey,
                                                 child: QrImageView(
                                                   data:
-                                                      'http://192.168.1.154:8000/pay?store_id=${store.id}&amount=${store.defaultAmount}',
+                                                      'http://192.168.18.45:8000/pay?store_id=${store.id}&amount=${store.defaultAmount}',
                                                   version: QrVersions.auto,
                                                   size: 200,
                                                 ),
