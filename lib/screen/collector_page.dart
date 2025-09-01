@@ -18,6 +18,7 @@ class _CollectorPageState extends State<CollectorPage> {
   List<Store> filteredStores = [];
   Store? selectedStore;
   bool isLoading = true;
+  bool isExpanded = false;
 
   DateTime? selectedDate;
   String? selectedGroup;
@@ -147,118 +148,234 @@ class _CollectorPageState extends State<CollectorPage> {
     if (isLoading) return const Center(child: CircularProgressIndicator());
 
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      // backgroundColor: Colors.grey[200],
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               // Box 1: Scan to Pay
-              SizedBox(
-                height: 150,
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  color: Colors.white,
-                  elevation: 3,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        // Row 1
-                        Row(
-                          children: [
-                            Flexible(
-                              child: TextField(
-                                readOnly: true,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                                decoration: InputDecoration(
-                                  labelText:
-                                      "${selectedDate!.year}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}",
-                                  labelStyle: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                // elevation: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Store dropdown
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.store,
+                                  color: Color(0xFF295D6B),
+                                ), // Store icon
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: DropdownButtonFormField<Store?>(
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                    ),
+                                    icon: const SizedBox.shrink(),
+                                    value: selectedStore,
+                                    hint: const Text(
+                                      "Select Store",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF295D6B),
+                                      ),
+                                    ),
+                                    items: [
+                                      DropdownMenuItem(
+                                        value: null,
+                                        child: const Text(
+                                          "All",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                      ...filteredStores.map(
+                                        (s) => DropdownMenuItem(
+                                          value: s,
+                                          child: Text(
+                                            s.name,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    onChanged: (val) =>
+                                        setState(() => selectedStore = val),
                                   ),
-                                  border: InputBorder.none,
-                                  isDense: true,
                                 ),
-                                onTap: () async {
-                                  final picked = await showDatePicker(
-                                    context: context,
-                                    initialDate: selectedDate!,
-                                    firstDate: DateTime(2020),
-                                    lastDate: DateTime(2100),
-                                  );
+                              ],
+                            ),
+                          ),
 
-                                  if (picked != null) {
-                                    setState(() {
-                                      selectedDate = picked;
-                                    });
-                                    await _loadStores(); // reload stores for selected date
+                          // QR button + dropdown arrow
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.qr_code,
+                                  color: Color(0xFF295D6B),
+                                  size: 30,
+                                ),
+                                onPressed: () {
+                                  if (selectedStore == null) {
+                                    // no store or "All" selected
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        title: const Text(
+                                          "Please select a store first",
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: const Text("OK"),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  } else {
+                                    // show QR as before
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                        ),
+                                        title: Center(
+                                          child: Text(
+                                            "QR for ${selectedStore!.name}",
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        content: QrImageView(
+                                          data:
+                                              'http://192.168.18.45:8000/pay?store_id=${selectedStore!.id}&amount=${selectedStore!.defaultAmount}&date=${selectedDate!.toIso8601String()}',
+                                          version: QrVersions.auto,
+                                          size: 200,
+                                        ),
+                                        actionsAlignment:
+                                            MainAxisAlignment.center,
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: const Text("Close"),
+                                          ),
+                                        ],
+                                      ),
+                                    );
                                   }
                                 },
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            //group icon
-                            DropdownButton<String>(
-                              value: selectedGroup,
-                              underline: const SizedBox(), // remove underline
-                              icon: const Icon(
-                                Icons.group,
-                                color: Colors.blue,
-                                size: 30,
+                              // Dropdown arrow to expand date/group
+                              IconButton(
+                                icon: Icon(
+                                  isExpanded
+                                      ? Icons.arrow_drop_up
+                                      : Icons.arrow_drop_down,
+                                  color: Color(0xFF295D6B),
+                                  size: 30,
+                                ),
+                                onPressed: () {
+                                  setState(() => isExpanded = !isExpanded);
+                                },
                               ),
-                              items: getGroups()
-                                  .map(
-                                    (g) => DropdownMenuItem(
-                                      value: g,
-                                      child: Text(
-                                        g,
+                            ],
+                          ),
+                        ],
+                      ),
+
+                      // Expanded section for date + group (same row, original logic)
+                      if (isExpanded)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Row(
+                            children: [
+                              // Date picker (original logic)
+                              Flexible(
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.calendar_today,
+                                      color: Color(0xFF295D6B),
+                                    ), // Date icon
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: TextField(
+                                        readOnly: true,
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           color: Colors.black,
                                         ),
+                                        decoration: InputDecoration(
+                                          labelText:
+                                              "${selectedDate!.year}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}",
+                                          labelStyle: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF295D6B),
+                                          ),
+                                          border: InputBorder.none,
+                                          isDense: true,
+                                        ),
+                                        onTap: () async {
+                                          final picked = await showDatePicker(
+                                            context: context,
+                                            initialDate: selectedDate!,
+                                            firstDate: DateTime(2020),
+                                            lastDate: DateTime(2100),
+                                          );
+
+                                          if (picked != null) {
+                                            setState(() {
+                                              selectedDate = picked;
+                                            });
+                                            await _loadStores(); // reload stores for selected date
+                                          }
+                                        },
                                       ),
                                     ),
-                                  )
-                                  .toList(),
-                              onChanged: (val) {
-                                setState(() {
-                                  selectedGroup = val;
-                                  _filterStores();
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-
-                        // Row 2
-                        Row(
-                          children: [
-                            Expanded(
-                              child: DropdownButtonFormField<Store>(
-                                icon: const SizedBox.shrink(),
-                                decoration: const InputDecoration(
-                                  labelText: "Select Store",
-                                  labelStyle: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
-                                  ),
-                                  border: InputBorder.none,
-                                  isDense: true,
+                                  ],
                                 ),
-                                value: selectedStore,
-                                items: filteredStores
+                              ),
+
+                              const SizedBox(width: 10),
+
+                              // Group dropdown
+                              DropdownButton<String>(
+                                value: selectedGroup,
+                                underline: const SizedBox(), // remove underline
+                                icon: const Icon(
+                                  Icons.group,
+                                  color: Color(0xFF295D6B),
+                                  size: 30,
+                                ),
+                                items: getGroups()
                                     .map(
-                                      (s) => DropdownMenuItem(
-                                        value: s,
+                                      (g) => DropdownMenuItem(
+                                        value: g,
                                         child: Text(
-                                          s.name,
+                                          g,
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Colors.black,
@@ -268,64 +385,20 @@ class _CollectorPageState extends State<CollectorPage> {
                                     )
                                     .toList(),
                                 onChanged: (val) {
-                                  setState(() => selectedStore = val);
+                                  setState(() {
+                                    selectedGroup = val;
+                                    _filterStores(); // filter logic
+                                  });
                                 },
                               ),
-                            ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.qr_code,
-                                color: Colors.blue,
-                                size: 30,
-                              ),
-                              onPressed: () {
-                                if (selectedStore != null) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (_) => AlertDialog(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      title: Center(
-                                        child: Text(
-                                          "QR for ${selectedStore!.name}",
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          QrImageView(
-                                            data:
-                                                'http://192.168.18.45:8000/pay?store_id=${selectedStore!.id}&amount=${selectedStore!.defaultAmount}&date=${selectedDate!.toIso8601String()}',
-                                            version: QrVersions.auto,
-                                            size: 200,
-                                          ),
-                                        ],
-                                      ),
-                                      actionsAlignment:
-                                          MainAxisAlignment.center,
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                          child: const Text("Close"),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
               ),
+
               const SizedBox(height: 10),
 
               // Box 2: Today's Status
@@ -335,8 +408,8 @@ class _CollectorPageState extends State<CollectorPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  color: Colors.white,
-                  elevation: 3,
+                  color: Color(0xFFF6F6F6),
+                  // elevation: 3,
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -419,7 +492,7 @@ class _CollectorPageState extends State<CollectorPage> {
                                       IconButton(
                                         icon: const Icon(
                                           Icons.note_add,
-                                          color: Colors.blue,
+                                          color: Color(0xFF295D6B),
                                         ),
                                         onPressed: () async {
                                           final controller =
@@ -506,6 +579,10 @@ class _CollectorPageState extends State<CollectorPage> {
                           width: double.infinity,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(
+                                0xFF295D6B,
+                              ),
+                              foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),

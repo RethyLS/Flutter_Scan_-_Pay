@@ -281,10 +281,12 @@ class _AdminPageState extends State<AdminPage> {
                   ],
                 ),
                 const SizedBox(height: 12),
+
+                // Store rows
                 stores.isEmpty
                     ? const Text("No store yet")
                     : SizedBox(
-                        height: 400,
+                        height: 500,
                         child: ListView.builder(
                           itemCount: stores.length,
                           itemBuilder: (context, index) {
@@ -295,7 +297,7 @@ class _AdminPageState extends State<AdminPage> {
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text("Owner: ${store.owner}"),
+                                    Text(store.owner),
                                     Text("Group: ${store.group ?? '-'}"),
                                   ],
                                 ),
@@ -337,6 +339,7 @@ class _AdminPageState extends State<AdminPage> {
                                         );
                                       },
                                     ),
+                                    // Edit button
                                     IconButton(
                                       icon: const Icon(
                                         Icons.edit,
@@ -344,6 +347,7 @@ class _AdminPageState extends State<AdminPage> {
                                       ),
                                       onPressed: () => _editStore(store),
                                     ),
+                                    // Delete button
                                     IconButton(
                                       icon: const Icon(
                                         Icons.delete,
