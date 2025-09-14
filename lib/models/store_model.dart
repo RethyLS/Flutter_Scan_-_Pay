@@ -5,8 +5,9 @@ class Store {
   final String owner;
   final String? group;
   final double defaultAmount;
-  final String status; // new field: "paid" or "unpaid"
-  final Payment? latestPayment; // optional latest payment
+  final String status;
+  final Payment? latestPayment;
+   final int? userId;
 
   Store({
     this.id,
@@ -17,6 +18,7 @@ class Store {
     required this.defaultAmount,
     required this.status,
     this.latestPayment,
+    this.userId, 
   });
 
   factory Store.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,7 @@ class Store {
       latestPayment: json['latest_payment'] != null
           ? Payment.fromJson(json['latest_payment'])
           : null,
+      userId: json['user_id'],
     );
   }
 
@@ -42,6 +45,7 @@ class Store {
       'group': group,
       'default_amount': defaultAmount,
       'status': status,
+      'user_id': userId,
     };
   }
 }

@@ -1,0 +1,96 @@
+{
+  "common": {
+    "guest": "ភ្ញៀវ",
+    "ok": "យល់ព្រម",
+    "close": "បិទ",
+    "cancel": "បោះបង់",
+    "save": "រក្សាទុក"
+  },
+  "collector": {
+    "title": "អ្នកប្រមូល",
+    "select_store": "ជ្រើសរើសហាង",
+    "all": "ទាំងអស់",
+    "select_store_first": "សូមជ្រើសរើសហាងមុន",
+    "qr_for": "QR សម្រាប់",
+    "todays_status": "ស្ថានភាពថ្ងៃនេះ",
+    "stores": "ហាង",
+    "paid": "បានបង់",
+    "owner": "ម្ចាស់",
+    "amount": "ចំនួនទឹកប្រាក់",
+    "note": "កំណត់ចំណាំ",
+    "add_note_for": "បន្ថែមកំណត់ចំណាំសម្រាប់",
+    "enter_note": "បញ្ចូលកំណត់ចំណាំ",
+    "note_saved": "រក្សាកំណត់ចំណាំបានជោគជ័យ",
+    "note_failed": "រក្សាកំណត់ចំណាំបរាជ័យ",
+    "export_csv": "នាំចេញ CSV"
+  },
+  "admin": {
+    "title": "ហាង",
+    "stores_title": "ហាង",
+    "total": "សរុប: {}",
+    "no_store": "មិនមានហាងទេ",
+    "group": "ក្រុម",
+    "stall_id": "លេខស្តាល់",
+    "name": "ឈ្មោះ",
+    "owner": "ម្ចាស់",
+    "default_amount": "ចំនួនលំនាំដើម",
+    "assign_to_user": "ផ្ដល់ឲ្យអ្នកប្រើ",
+    "select_admin": "ជ្រើសរើសអាដមីន",
+    "please_choose_user": "សូមជ្រើសអ្នកប្រើ",
+    "please_choose_admin": "សូមជ្រើសអាដមីន",
+    "edit_store": "កែប្រែហាង",
+    "add_store": "បន្ថែមហាង",
+    "update": "កែប្រែ",
+    "add": "បន្ថែម",
+    "qr_for": "QR សម្រាប់ {}",
+    "close": "បិទ",
+    "save": "រក្សាទុក",
+    "storage_permission_denied": "ការអនុញ្ញាតផ្ទុកទិន្នន័យត្រូវបានបដិសេធ",
+    "qr_saved": "QR ត្រូវបានរក្សាទុកនៅ {}",
+    "error": "កំហុស: {}"
+  },
+  "reports": {
+    "title": "របាយការណ៍",
+    "export_csv": "នាំចេញ CSV",
+    "date": "កាលបរិច្ឆេទ",
+    "paid": "បានបង់",
+    "total": "សរុប",
+    "group": "ក្រុម",
+    "owner": "ម្ចាស់",
+    "store_id": "លេខសម្គាល់ហាង",
+    "store_name": "ឈ្មោះហាង",
+    "amount": "ចំនួនប្រាក់",
+    "transaction_id": "លេខប្រតិបត្តិការ",
+    "timestamp": "ពេលវេលា",
+    "note": "កំណត់សម្គាល់",
+    "page": "ទំព័រ",
+    "of": "នៃ"
+  },
+  "settings": {
+    "title": "ការកំណត់",
+    "dashboard": "ផ្ទាំងគ្រប់គ្រង",
+    "language": "ខ្មែរ",
+    "logout": "ចាកចេញ"
+  },
+    "login": {
+    "title": "ចូលគណនី",
+    "email": "អ៊ីមែល",
+    "password": "ពាក្យសម្ងាត់",
+    "login": "ចូល",
+    "register": "ចុះឈ្មោះ"
+  },
+  "register": {
+  "title": "ចុះឈ្មោះ",
+  "name": "ឈ្មោះ",
+  "enter_name": "សូមបញ្ចូលឈ្មោះ",
+  "email": "អ៊ីមែល",
+  "enter_email": "សូមបញ្ចូលអ៊ីមែល",
+  "password": "ពាក្យសម្ងាត់",
+  "min_6_chars": "អក្សរ 6 ខ្ទង់ឡើង",
+  "zone_optional": "តំបន់ (បន្ថែម)",
+  "back_to_login": "ត្រឡប់ក្រោយ",
+  "english": "អង់គ្លេស",
+  "khmer": "ខ្មែរ"
+}
+
+}
